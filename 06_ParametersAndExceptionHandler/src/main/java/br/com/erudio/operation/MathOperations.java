@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 import static br.com.erudio.utils.MathUtils.convertToDouble;
 
-@RestController
 public class MathOperations implements Serializable {
     public static Double Sum(String numberOne, String numberTwo) {
         return convertToDouble(numberOne) + convertToDouble(numberTwo);

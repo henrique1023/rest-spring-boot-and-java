@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.Serializable;
 
-@RestController
 public class MathUtils implements Serializable {
 
     public static Double convertToDouble(String strNumber) {
