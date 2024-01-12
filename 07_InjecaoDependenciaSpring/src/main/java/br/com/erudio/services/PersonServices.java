@@ -1,6 +1,8 @@
 package br.com.erudio.services;
 
+import br.com.erudio.data.vo.v1.PersonVO;
 import br.com.erudio.exceptions.ResponseEntityExceptionHandler;
+import br.com.erudio.mapper.DozerMapper;
 import br.com.erudio.model.Person;
 import br.com.erudio.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,26 +19,31 @@ public class PersonServices {
     @Autowired
     PersonRepository repository;
 
-    public Person findById(Long id){
+    public PersonVO findById(Long id){
         logger.info("Finding one person!");
 
-        return repository.findById(id).orElseThrow(() ->
+        var entity = repository.findById(id).orElseThrow(() ->
                 new ResponseEntityExceptionHandler("No records found for this ID"));
+
+        return DozerMapper.parseObject(entity, PersonVO.class);
     }
 
-    public List<Person>  findByAll(){
+    public List<PersonVO> findByAll(){
         logger.info("Finding All persons!");
 
-        return repository.findAll();
+        return DozerMapper.parseListObjects(repository.findAll(), PersonVO.class);
     }
 
-    public Person create(Person p){
+    public PersonVO create(PersonVO p){
         logger.info("creating a person!");
 
-        return repository.save(p);
+        var entity = DozerMapper.parseObject(p, Person.class);
+        var vo = DozerMapper.parseObject(repository.save(entity), PersonVO.class);
+
+        return vo;
     }
 
-    public Person update(Person p){
+    public PersonVO update(PersonVO p){
         logger.info("Updating a person!");
 
         var entity = repository.findById(p.getId()).orElseThrow(() ->
@@ -47,7 +54,8 @@ public class PersonServices {
         entity.setAddress(p.getAddress());
         entity.setGender(p.getGender());
 
-        return repository.save(entity);
+        var vo = DozerMapper.parseObject(repository.save(entity), PersonVO.class);
+        return vo;
     }
 
     public void delete(Long id){
