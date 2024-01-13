@@ -1,8 +1,10 @@
 package br.com.erudio.services;
 
 import br.com.erudio.data.vo.v1.PersonVO;
+import br.com.erudio.data.vo.v2.PersonVOV2;
 import br.com.erudio.exceptions.ResponseEntityExceptionHandler;
 import br.com.erudio.mapper.DozerMapper;
+import br.com.erudio.mapper.custom.PersonMapper;
 import br.com.erudio.model.Person;
 import br.com.erudio.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class PersonServices {
 
     @Autowired
     PersonRepository repository;
+
+    @Autowired
+    PersonMapper mapper;
 
     public PersonVO findById(Long id){
         logger.info("Finding one person!");
@@ -65,5 +70,14 @@ public class PersonServices {
                 new ResponseEntityExceptionHandler("No records found for this ID"));
 
         repository.delete(entity);
+    }
+
+    public PersonVOV2 createV2(PersonVOV2 person) {
+        logger.info("creating a person!");
+
+        var entity = mapper.convertVoToEntity(person);
+        var vo = mapper.convertEntityToVo(repository.save(entity));
+
+        return vo;
     }
 }

@@ -3,7 +3,7 @@ package br.com.erudio.unittestes.mapper.mocks;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.erudio.data.vo.v1.PersonVO;
+import br.com.erudio.data.vo.v2.PersonVOV2;
 import br.com.erudio.model.Person;
 
 public class MockPerson {
@@ -13,7 +13,7 @@ public class MockPerson {
         return mockEntity(0);
     }
     
-    public PersonVO mockVO() {
+    public PersonVOV2 mockVO() {
         return mockVO(0);
     }
     
@@ -25,8 +25,8 @@ public class MockPerson {
         return persons;
     }
 
-    public List<PersonVO> mockVOList() {
-        List<PersonVO> persons = new ArrayList<>();
+    public List<PersonVOV2> mockVOList() {
+        List<PersonVOV2> persons = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
             persons.add(mockVO(i));
         }
@@ -43,8 +43,8 @@ public class MockPerson {
         return person;
     }
 
-    public PersonVO mockVO(Integer number) {
-        PersonVO person = new PersonVO();
+    public PersonVOV2 mockVO(Integer number) {
+        PersonVOV2 person = new PersonVOV2();
         person.setAddress("Addres Test" + number);
         person.setFirstName("First Name Test" + number);
         person.setGender(((number % 2)==0) ? "Male" : "Female");

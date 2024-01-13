@@ -1,10 +1,11 @@
-package br.com.erudio.data.vo.v1;
+package br.com.erudio.data.vo.v2;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 
-public class PersonVO implements Serializable {
+public class PersonVOV2 implements Serializable {
 
     private Long id;
 
@@ -16,10 +17,11 @@ public class PersonVO implements Serializable {
 
     private String gender;
 
-    public PersonVO() {
+    private Date BirthDay;
+    public PersonVOV2() {
     }
 
-    public PersonVO(Long id, String firstName, String lastName, String address, String gender) {
+    public PersonVOV2(Long id, String firstName, String lastName, String address, String gender) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -67,15 +69,23 @@ public class PersonVO implements Serializable {
         this.gender = gender;
     }
 
+    public Date getBirthDay() {
+        return BirthDay;
+    }
+
+    public void setBirthDay(Date birthDay) {
+        BirthDay = birthDay;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PersonVO person)) return false;
-        return id == person.id && Objects.equals(firstName, person.firstName) && Objects.equals(lastName, person.lastName) && Objects.equals(address, person.address) && Objects.equals(gender, person.gender);
+        if (!(o instanceof PersonVOV2 that)) return false;
+        return Objects.equals(id, that.id) && Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(address, that.address) && Objects.equals(gender, that.gender) && Objects.equals(BirthDay, that.BirthDay);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, address, gender);
+        return Objects.hash(id, firstName, lastName, address, gender, BirthDay);
     }
 }
