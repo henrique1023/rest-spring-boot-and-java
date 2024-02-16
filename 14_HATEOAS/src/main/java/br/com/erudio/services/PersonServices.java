@@ -1,5 +1,6 @@
 package br.com.erudio.services;
 
+import br.com.erudio.controllers.PersonController;
 import br.com.erudio.data.vo.v1.PersonVO;
 import br.com.erudio.exceptions.ResponseEntityExceptionHandler;
 import br.com.erudio.mapper.DozerMapper;
@@ -7,6 +8,8 @@ import br.com.erudio.mapper.custom.PersonMapper;
 import br.com.erudio.model.Person;
 import br.com.erudio.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +26,16 @@ public class PersonServices {
     @Autowired
     PersonMapper mapper;
 
-    public PersonVO findById(Long id){
+    public PersonVO findById(Long id) throws Exception {
         logger.info("Finding one person!");
 
         var entity = repository.findById(id).orElseThrow(() ->
                 new ResponseEntityExceptionHandler("No records found for this ID"));
 
-        return DozerMapper.parseObject(entity, PersonVO.class);
+        PersonVO vo = DozerMapper.parseObject(entity, PersonVO.class);
+
+        vo.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
+        return vo;
     }
 
     public List<PersonVO> findByAll(){
@@ -50,7 +56,7 @@ public class PersonServices {
     public PersonVO update(PersonVO p){
         logger.info("Updating a person!");
 
-        var entity = repository.findById(p.getId()).orElseThrow(() ->
+        var entity = repository.findById(p.getKey()).orElseThrow(() ->
                 new ResponseEntityExceptionHandler("No records found for this ID"));
 
         entity.setFirstName(p.getFirstName());
