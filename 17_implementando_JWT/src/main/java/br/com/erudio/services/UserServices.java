@@ -7,6 +7,7 @@ import br.com.erudio.exceptions.ResponseEntityExceptionHandler;
 import br.com.erudio.mapper.DozerMapper;
 import br.com.erudio.mapper.custom.PersonMapper;
 import br.com.erudio.model.Person;
+import br.com.erudio.model.User;
 import br.com.erudio.repositories.PersonRepository;
 import br.com.erudio.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,16 @@ public class UserServices implements UserDetailsService {
             return user;
         }else {
             throw new UsernameNotFoundException("" + username + " not found");
+        }
+    }
+
+    public User createUser(User usuarioNovo) {
+        logger.info("Criate one User!");
+        var user = repository.save(usuarioNovo);
+        if (user.getId() != null){
+            return user;
+        }else {
+            throw new UsernameNotFoundException("" + usuarioNovo.getUsername() + " not found");
         }
     }
 }

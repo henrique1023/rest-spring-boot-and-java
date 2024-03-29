@@ -3,6 +3,8 @@ package br.com.erudio.exceptions.handler;
 import br.com.erudio.exceptions.ExceptionResponse;
 import br.com.erudio.exceptions.InvalidJwtAuthenticationException;
 import br.com.erudio.exceptions.RequiredObjectisNullException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -45,7 +47,18 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(InvalidJwtAuthenticationException.class)
-    public final ResponseEntity<ExceptionResponse> handleInvalidJwtAuthenticationExceptions(
+    public final ResponseEntity<ExceptionResponse>
+    invalidJwtAuthenticationException(Exception ex, WebRequest request) {
+        ExceptionResponse exceptionResponse =
+                new ExceptionResponse(
+                        new Date(),
+                        ex.getMessage(),
+                        request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public final ResponseEntity<ExceptionResponse> TokenExpiredExceptionExceptions(
             Exception ex, WebRequest request){
         ExceptionResponse exceptionResponse = new ExceptionResponse(
                 new Date(),
@@ -53,4 +66,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                 request.getDescription(false));
         return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
     }
+
+
 }

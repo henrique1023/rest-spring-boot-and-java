@@ -63,6 +63,17 @@ public class JwtTokenProvider {
         var refleshToken = getRefleshToken(username, roles,now);
         return new TokenVO(username, true, now, validity, accessToken, refleshToken);
     }
+
+    public TokenVO refreshAccessToken(String refleshToken){
+        if(refleshToken.contains("Bearer ") )
+            refleshToken = refleshToken.substring("Bearer ".length());
+
+        JWTVerifier jwtVerifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = jwtVerifier.verify(refleshToken);
+        String username = decodedJWT.getSubject();
+        List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
+        return  createAccessToken(username, roles);
+    }
     private String getAccessToken(String username, List<String> roles, Date now, Date validity) {
         String issuerUrl = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -88,7 +99,8 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token){
-        UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
+        DecodedJWT decodedJWT = decodedToken(token);
+        UserDetails userDetails = this.userDetailsService.loadUserByUsername(decodedJWT.getSubject());
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
@@ -112,9 +124,11 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token){
+
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            if (claims.getBody().getExpiration().before(new Date())) {
+            DecodedJWT decodedJWT = decodedToken(token);
+
+            if (decodedJWT.getExpiresAt().before(new Date())) {
                 return false;
             }
             return true;
