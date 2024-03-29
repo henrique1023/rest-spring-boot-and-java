@@ -54,8 +54,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                                .requestMatchers("/api/v1/**").authenticated()
+                                .requestMatchers("/auth/signin",
+                                        "/auth/refresh/**",
+                                        "/swagger-ui.html",
+                                        "/api-docs/**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
                                 .requestMatchers("/users").denyAll()
                 )
                 .cors(cors -> {})
