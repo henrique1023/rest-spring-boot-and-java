@@ -12,6 +12,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,6 +34,9 @@ public class PersonServices {
     @Autowired
     PersonMapper mapper;
 
+    @Autowired
+    PagedResourcesAssembler<PersonVO> assembler;
+
     public PersonVO findById(Long id) throws Exception {
         logger.info("Finding one person!");
 
@@ -42,10 +49,20 @@ public class PersonServices {
         return vo;
     }
 
-    public Page<PersonVO> findByAll(Pageable pageable) {
+    public PagedModel<EntityModel<PersonVO>> findByAll(Pageable pageable) {
         logger.info("Finding All persons!");
 
         var personPage = repository.findAll(pageable);
+        return getListVos(pageable, personPage);
+    }
+     public PagedModel<EntityModel<PersonVO>> findPersonsByName(String firstName, Pageable pageable) {
+        logger.info("Finding All persons!");
+
+        var personPage = repository.findPersonsByName(firstName, pageable);
+         return getListVos(pageable, personPage);
+     }
+
+    private PagedModel<EntityModel<PersonVO>> getListVos(Pageable pageable, Page<Person> personPage) {
         var personVosPage = personPage.map(p -> DozerMapper.parseObject(p, PersonVO.class));
         personVosPage.map(p -> {
             try {
@@ -55,7 +72,10 @@ public class PersonServices {
             }
         });
 
-        return personVosPage;
+        Link link = linkTo(methodOn(PersonController.class)
+                .findByAll(pageable.getPageNumber(), pageable.getPageSize(), "asc")).withSelfRel();
+
+        return assembler.toModel(personVosPage, link);
     }
 
     public PersonVO create(PersonVO p) throws Exception {
