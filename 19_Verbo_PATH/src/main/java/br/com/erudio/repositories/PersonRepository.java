@@ -12,5 +12,5 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     @Modifying
     @Query("update Person p set p.enabled = false where p.id = :id")
-    Person disablePerson(@Param("id") Long id);
+    void disablePerson(@Param("id") Long id);
 }

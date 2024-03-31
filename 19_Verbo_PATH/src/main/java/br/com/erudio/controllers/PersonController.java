@@ -94,6 +94,24 @@ public class PersonController {
         return service.update(person);
     }
 
+    @PatchMapping(value = "/{id}",
+            produces = {MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,MediaType.APPLICATION_YML})
+    @Operation(summary = "disable a specific person by your ID",
+            description =  "disable a specific person by your ID",
+            tags = {"People"},
+            responses = {
+                    @ApiResponse(description = "Sucess", responseCode = "200",
+                            content = @Content(schema = @Schema(implementation = PersonVO.class))),
+                    @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+                    @ApiResponse(description = "Bad request", responseCode = "400", content = @Content),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+                    @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public PersonVO disablePerson(@PathVariable(value = "id") Long id) throws Exception {
+        return service.disablePerson(id);
+    }
+
     @DeleteMapping(value = "/{id}")
     @Operation(summary = "Delete a person", description =  "Delete a person",
             tags = {"People"},
@@ -109,4 +127,6 @@ public class PersonController {
 
         return ResponseEntity.noContent().build();
     }
+
+
 }
