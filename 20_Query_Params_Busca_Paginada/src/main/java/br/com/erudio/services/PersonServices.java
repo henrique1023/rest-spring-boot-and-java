@@ -10,13 +10,15 @@ import br.com.erudio.model.Person;
 import br.com.erudio.repositories.PersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Service
 public class PersonServices {
     private final AtomicLong counter = new AtomicLong();
@@ -40,20 +42,20 @@ public class PersonServices {
         return vo;
     }
 
-    public List<PersonVO> findByAll() {
+    public Page<PersonVO> findByAll(Pageable pageable) {
         logger.info("Finding All persons!");
 
-        var persons = DozerMapper.parseListObjects(repository.findAll(), PersonVO.class);
-        persons
-                .stream()
-                .forEach(p -> {
-                    try {
-                        p.add(linkTo(methodOn(PersonController.class).findById(p.getKey())).withSelfRel());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        return persons;
+        var personPage = repository.findAll(pageable);
+        var personVosPage = personPage.map(p -> DozerMapper.parseObject(p, PersonVO.class));
+        personVosPage.map(p -> {
+            try {
+                return p.add(linkTo(methodOn(PersonController.class).findById(p.getKey())).withSelfRel());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return personVosPage;
     }
 
     public PersonVO create(PersonVO p) throws Exception {
