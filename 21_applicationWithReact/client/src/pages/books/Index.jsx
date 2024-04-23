@@ -8,11 +8,29 @@ import api from "../../services/api";
 
 export default function Books(){
     const [books, setBooks] = useState([])
+    const [page, setPage] = useState(1)
 
     const navigate = useNavigate();
 
     const accessToken = localStorage.getItem('accessToken')
-    const username = localStorage.getItem('username')
+    const username = localStorage.getItem('username') !== null ? localStorage.getItem('username') : ''
+
+    function verifyToken(){
+        if(accessToken === undefined || accessToken === '' || accessToken === null){
+            return true
+        }else{
+            return false
+        }
+    }
+
+    async function editBook(id){
+        try {
+            navigate(`/book/new/${id}`)
+        } catch (error) {
+            alert('Erro ao editar livro!')
+        }
+        
+    }
 
     async function deleteBook(id){
         try {
@@ -32,20 +50,35 @@ export default function Books(){
         navigate('/')
     }
 
-    useEffect(() => {
-        console.log('chamando')
-        api.get('api/book/v1', { 
+    async function fetchMoreBooks(){
+        try {
+            const response = await api.get('api/book/v1', { 
             headers: {
                 Authorization: `Bearer ${accessToken}`
             },
             params: {
-                page:1,
+                page: page,
                 size: 4,
                 direction: 'asc'
             }
-        }).then(resp => {
-            setBooks(resp.data._embedded.bookVOList)
-        })
+            })
+
+            setBooks([...books, ...response.data._embedded.bookVOList])
+            setPage(page + 1)
+        } catch (error) {
+            
+        }
+        
+    }
+
+    useEffect(() => {
+        console.log(accessToken)
+        if(verifyToken()){
+            navigate('/')
+        }else{
+            fetchMoreBooks()
+        }
+        
     }, []); 
     
     return (
@@ -53,7 +86,7 @@ export default function Books(){
             <header>
                 <img src={logoImage} alt="Erudio" />
                 <span>Welcome, <strong>{username.toUpperCase}</strong>!</span>
-                <Link className="button" to="/book/new">Add new book</Link>
+                <Link className="button" to="/book/new/0">Add new book</Link>
                 <button  onClick={() => logout()}  type="button">
                     <FiPower size={18} color="#251fc5"/>
                 </button>
@@ -71,7 +104,7 @@ export default function Books(){
                         <strong>Release Data:</strong>
                         <p>{Intl.DateTimeFormat('pt-BR').format(new Date(book.launchDate))}</p>
 
-                        <button type="button">
+                        <button onClick={() => editBook(book.id)} ype="button">
                             <FiEdit size={20} color="#251fc5"/>
                         </button>
                         <button onClick={() => deleteBook(book.id)} type="button">
@@ -81,6 +114,8 @@ export default function Books(){
                 ))}
                 
             </ul>
+
+            <button className="button" onClick={() => fetchMoreBooks()}>Carregar mais</button>
        </div>
     )
 }
