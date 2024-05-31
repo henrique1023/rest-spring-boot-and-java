@@ -1,5 +1,7 @@
 cors:
     originPatterns: http://localhost:3000,http://localhost:8080,https://localhost:8080
+file:
+  upload-dir: /Users/henri/Documents/rest-spring-boot-and-java/22_UploadDownloadArquivos/dados
 security:
   jwt:
     token:
@@ -19,6 +21,12 @@ spring:
 #        dialect: org.hibernate.dialect.MySQLDialect
     show-sql: false
     open-in-view: true
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
 springdoc:
   paths-to-match:
       - /auth/**
